@@ -1,5 +1,16 @@
 # README
 
+This Project has a Ruby on Rails Template. With Latest version of
+* Ruby
+* Rails
+
+Its integrated with:
+* CircleCi
+
+Thinks you should change
+* Database (by default sqlite3)
+* Application name (by default MyOwnRubyTemplate)
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 
