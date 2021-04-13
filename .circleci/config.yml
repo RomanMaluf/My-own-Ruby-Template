@@ -1,0 +1,44 @@
+version: 2.1
+orbs:
+  ruby: circleci/ruby@0.1.2
+  node: circleci/node@2
+
+jobs:
+  build: # our first job, named "build"
+    docker:
+      - image: circleci/ruby:3.0.0-stretch-node
+    executor: ruby/default
+    steps:
+      - checkout # pull down our git code.
+      # use the node orb to install our packages
+      - node/install-packages:
+          pkg-manager: yarn
+          cache-key: "yarn.lock"
+      - run:
+          name: Which bundler?
+          command: bundle -v
+      - ruby/bundle-install
+  rspec:  # our next job, called "rspec"
+      docker:
+      - image: circleci/ruby:3.0.0-stretch-node
+      steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+          cache-key: "yarn.lock"
+      - run:
+          name: Database setup
+          command: bundle exec rails db:schema:load --trace
+      # Run rspec
+      - run:
+          name: Run tests
+          command: bundle exec rspec
+# We use workflows to orchestrate the jobs that we declared above.
+workflows:
+  version: 2
+  build_and_rspec:    # The name of our workflow is "build_and_rspec"
+    jobs:             # The list of jobs we run as part of this workflow.
+      - build         # Run build first.
+      - rspec:        # Then run test,
+          requires:   # Test requires that build passes for it to run.
+            - build   # Finally, run the build job.
