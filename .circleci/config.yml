@@ -15,7 +15,7 @@ jobs:
           pkg-manager: yarn
           cache-key: "yarn.lock"
       # Install sqlite3 gem dependencies
-      - run: sudo apt install -y libsqlite3-dev || true
+      - run: sudo apt-get install -y sqlite3 libsqlite3-dev || true
       - run:
           name: Which bundler?
           command: bundle -v
@@ -28,7 +28,7 @@ jobs:
       - node/install-packages:
           pkg-manager: yarn
           cache-key: "yarn.lock"
-      - run: sudo apt install -y libsqlite3-dev || true    
+      - run: sudo apt-get install -y sqlite3 libsqlite3-dev || true
       - run:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
