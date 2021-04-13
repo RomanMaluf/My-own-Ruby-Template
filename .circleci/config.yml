@@ -1,0 +1,51 @@
+version: 2.1
+
+orbs:
+  ruby: circleci/ruby@1.1.0
+  node: circleci/node@2
+
+jobs:
+  build:
+    docker:
+      - image: cimg/ruby:3.0.0-node
+    steps:
+      - checkout
+      - run: sudo apt update && sudo apt install zlib1g-dev libsqlite3-dev
+      - ruby/install-deps
+      - node/install-packages:
+          cache-key: yarn.lock
+          pkg-manager: yarn
+  checking:
+    docker:
+      - image: cimg/ruby:3.0.0-node
+    steps:
+      - checkout
+      - ruby/install-deps
+      - ruby/rubocop-check
+  rspec:
+    parallelism: 1
+    docker:
+      - image: cimg/ruby:3.0.0-node
+    environment:
+      RAILS_ENV: test
+    steps:
+      - checkout
+      - run: sudo apt update && sudo apt install zlib1g-dev libsqlite3-dev
+      - ruby/install-deps
+      - node/install-packages:
+          pkg-manager: yarn
+          cache-key: "yarn.lock"
+      - run:
+          name: Database setup
+          command: bundle exec rails db:schema:load --trace
+      - ruby/rspec-test
+
+workflows:
+  version: 2
+  build_and_rspec:
+    jobs:
+      - build
+      - checking
+      - rspec:
+          requires:
+            - build
