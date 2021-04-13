@@ -1,47 +1,52 @@
 version: 2.1
+
 orbs:
-  ruby: circleci/ruby@0.1.2
+  ruby: circleci/ruby@1.1.0
   node: circleci/node@2
 
 jobs:
-  build: # our first job, named "build"
+  build:
     docker:
       - image: cimg/ruby:3.0.0-node
-    executor: ruby/default
     steps:
-      - checkout # pull down our git code.
-      # use the node orb to install our packages
+      - checkout
+      - ruby/install-deps
       - node/install-packages:
           pkg-manager: yarn
           cache-key: "yarn.lock"
-      # Install sqlite3 gem dependencies
-      - run: sudo apt-get install -y sqlite3 libsqlite3-dev || true
       - run:
           name: Which bundler?
           command: bundle -v
-      - ruby/bundle-install
-  rspec:  # our next job, called "rspec"
-      docker:
+      - run:
+          name: Install dependencies
+          command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
+  rspec:
+    parallelism: 1
+    docker:
       - image: cimg/ruby:3.0.0-node
-      steps:
+    environment:
+      RAILS_ENV: test
+    steps:
       - checkout
+      - ruby/install-deps
       - node/install-packages:
           pkg-manager: yarn
           cache-key: "yarn.lock"
-      - run: sudo apt-get install -y sqlite3 libsqlite3-dev || true
+# Uncomment when setup database
+#      - run:
+#          name: Wait for DB
+#          command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
-      # Run rspec
-      - run:
-          name: Run tests
-          command: bundle exec rspec
-# We use workflows to orchestrate the jobs that we declared above.
+      - ruby/rspec-test
+      - ruby/rubocop-check
+
 workflows:
   version: 2
-  build_and_rspec:    # The name of our workflow is "build_and_rspec"
-    jobs:             # The list of jobs we run as part of this workflow.
-      - build         # Run build first.
-      - rspec:        # Then run test,
-          requires:   # Test requires that build passes for it to run.
-            - build   # Finally, run the build job.
+  build_and_rspec:
+    jobs:
+      - build
+      - rspec:
+          requires:
+            - build
