@@ -10,6 +10,7 @@ jobs:
     executor: ruby/default
     steps:
       - checkout # pull down our git code.
+      - ruby/install-deps # use the ruby orb to install dependencies
       # use the node orb to install our packages
       - node/install-packages:
           pkg-manager: yarn
@@ -23,6 +24,7 @@ jobs:
       - image: cimg/ruby:3.0.0-node
       steps:
       - checkout
+      - ruby/install-deps
       - node/install-packages:
           pkg-manager: yarn
           cache-key: "yarn.lock"
