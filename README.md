@@ -1,5 +1,9 @@
 # README
-
+[![CircleCI Build Status](https://circleci.com/gh/RomanMaluf/My-own-Ruby-Template.svg?style=shield)](https://circleci.com/gh/RomanMaluf/My-own-Ruby-Template)
+[![Maintainability](https://api.codeclimate.com/v1/badges/bda567afc859dd542524/maintainability)](https://codeclimate.com/github/RomanMaluf/My-own-Ruby-Template/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/bda567afc859dd542524/test_coverage)](https://codeclimate.com/github/RomanMaluf/My-own-Ruby-Template/test_coverage)
+<br>
+<br>
 This Project has a Ruby on Rails Template. With Latest version of
 * Ruby
 * Rails
