@@ -10,6 +10,7 @@ jobs:
       - image: cimg/ruby:3.0.0-node
     steps:
       - checkout
+      - run: sudo apt update && sudo apt install zlib1g-dev libsqlite3-dev
       - ruby/install-deps
       - node/install-packages:
           pkg-manager: yarn
@@ -20,6 +21,12 @@ jobs:
       - run:
           name: Install dependencies
           command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
+      - run:
+          name: Setup database
+          command: bundle exec rake db:create db:schema:load --trace
+      - run:
+          name: Generate assets
+          command: bundle exec rails assets:precompile
   rspec:
     parallelism: 1
     docker:
@@ -28,14 +35,11 @@ jobs:
       RAILS_ENV: test
     steps:
       - checkout
+      - run: sudo apt update && sudo apt install zlib1g-dev libsqlite3-dev
       - ruby/install-deps
       - node/install-packages:
           pkg-manager: yarn
           cache-key: "yarn.lock"
-# Uncomment when setup database
-#      - run:
-#          name: Wait for DB
-#          command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
