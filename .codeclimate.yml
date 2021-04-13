@@ -32,3 +32,4 @@ exclude_patterns:
   - "**/vendor/"
   - "**/spec/"
   - "public/"
+  - "babel.config.js"
